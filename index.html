@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Agenda de compromissos</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+
+	<link rel="stylesheet" type="text/css" href="fullcalendar/fullcalendar.min.css">
+	<link rel="stylesheet" type="text/css" href="fullcalendar/fullcalendar.print.min.css" media="print">
+
+	<script type="text/javascript" src="fullcalendar/lib/moment.min.js"></script>
+	<script type="text/javascript" src="fullcalendar/lib/jquery.min.js"></script>
+
+</head>
+<body>
+<div class="container">
+	<div class="row mt-5">
+		<div class="col-md-12">
+			<div id="agenda">
+
+			</div>		
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	$(document).ready(function(){
+		$("#agenda").fullCalendar({
+			header: {
+				left: "prev,today,next",
+				center: "title",
+				right: "agendaWeek,agendaDay"
+			},
+			events: "http://localhost:8000/php/listar_compromissos.php",
+			selectable: true,
+			selectHelper: true,
+			defaultView: "agendaWeek",
+			select: function(start, end) {
+				var inicio = moment(start).format("YYYY-MM-DD HH:mm");
+				var fim = moment(end).format("YYYY-MM-DD HH:mm");
+
+				var nome = window.prompt("Digite o nome do compromisso:");
+
+				var dados = {
+					nome: nome,
+					inicio: inicio,
+					fim: fim
+				};
+
+				$.post("http://localhost:8000/php/salvar_compromisso.php", dados, function(response){
+						if(response.status == 'success') {
+							var compromisso = {
+								title: response.title,
+								start: response.start,
+								end: response.end
+							};
+
+							$("#agenda").fullCalendar('renderEvent', compromisso, true);
+							alert(response.mensagem);
+						} else {
+							alert(response.mensagem);
+						}
+				}, 'json');
+
+			}
+		});
+	});
+</script>
+
+<script type="text/javascript" src="fullcalendar/fullcalendar.min.js"></script>
+<script type="text/javascript" src="fullcalendar/locale/pt-br.js"></script>
+
+</body>
+</html>
